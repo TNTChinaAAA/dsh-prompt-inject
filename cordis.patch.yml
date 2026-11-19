@@ -1,0 +1,10 @@
+# Host + client 双端插件。
+#  - host 端（src/host/）提供提示词管理 HTTP API、注入路由，并在目标会话下一次模型 step 前
+#    追加一条插件 user 消息（绝不改 system prompt，避免破坏缓存）。
+#  - client 端（src/client/）在会话头部操作区（conversation.session.header.actions）渲染
+#    「注入提示词」按钮，点击在应用内挂一个同源 iframe 浮层（可拖动，默认居中）。
+# 为了让 dsh-client-modules 扫描到本包并加载 client 半边，必须在 host loader 里注册一个
+# entry（id 可与包名不同，name 必须是包名）。
+- insert:
+    - id: prompt-inject
+      name: 'dsh-prompt-inject'
