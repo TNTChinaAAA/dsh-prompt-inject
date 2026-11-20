@@ -96,6 +96,13 @@ export const PANEL_PAGE_HTML = `<!DOCTYPE html>
     font-size: 12px; line-height: 18px; color: var(--sub);
     font-family: var(--ds-font-family-code); font-variant-numeric: tabular-nums;
   }
+  /* 版本标记：用来一眼确认 host 侧跑的是哪一版（host 改动必须重启才生效）。 */
+  .topbar .ver {
+    display: inline-flex; align-items: center; height: 20px; padding: 0 6px;
+    border: 0.5px solid var(--dsw-alias-border-l4); border-radius: 999px;
+    font-size: 11px; line-height: 16px; color: var(--muted);
+    font-family: var(--ds-font-family-code);
+  }
   .composer {
     flex: none;
     padding: 12px max(20px, calc((100% - 860px) / 2));
@@ -209,6 +216,7 @@ export const PANEL_PAGE_HTML = `<!DOCTYPE html>
 <div class="wrap">
   <div class="topbar">
     <h1>提示词注入</h1>
+    <span class="ver" title="host 侧版本：改动后需完整重启 DSH 才会变">v0.3.0+force</span>
     <span class="sess" id="sessLabel"></span>
   </div>
   <div class="composer">
@@ -556,8 +564,8 @@ export const PANEL_PAGE_HTML = `<!DOCTYPE html>
     });
   }
 
-  // 发送 =「保存 + 立即注入」：先落盘成一条新提示词，再排队到当前会话的下一次模型调用注入。
-  // 等价于「点保存加入列表 → 点该条目的『注入』」，两步在 host 的 /quick-inject 里原子完成。
+  // 发送 = 一次性无条件注入：只进内存队列，不写 prompts.json、不进列表；
+  // 下一次模型 step 前无条件注入一次（无视窗口判据），与本轮结束一起丢弃。
   var sendBtn = document.getElementById('sendBtn');
   sendBtn.onclick = function () {
     var ta = document.getElementById('newPrompt');
@@ -565,12 +573,11 @@ export const PANEL_PAGE_HTML = `<!DOCTYPE html>
     if (!v) { toast('请输入内容'); return; }
     if (!currentSessionId) { toast('未指定会话，无法发送'); return; }
     sendBtn.disabled = true;
-    api('/quick-inject', 'POST', { sessionId: currentSessionId, text: v })
+    api('/send', 'POST', { sessionId: currentSessionId, text: v })
       .then(function (res) {
         if (res.ok) {
           ta.value = '';
-          load(currentSessionId);
-          queuedToast('已保存并排队：下次模型调用注入该提示词');
+          queuedToast('已排队：下次模型调用无条件注入（未保存）');
         } else {
           toast('发送失败：' + (res.error || '未知错误'));
         }

@@ -1,7 +1,7 @@
 /** DSH 提示词注入插件 host 半边。
  *
  * - 管理提示词：`/plugins/dsh-prompt-inject/prompts`（GET/POST）与 `/prompts/{id}`（PUT/DELETE）
- * - 一次性注入：`/inject`；保存并立即注入：`/quick-inject`
+ * - 一次性注入：`/inject`（窗口判据）；无条件注入：`/send`（不落盘，force 标记）
  * - 管理页：`/page`；外观偏好：`/theme`
  * - 注入管线：监听 llm/stream、tools/post-execute、agent/pre-step，在模型 step 前追加插件 user 消息。
  */
@@ -182,7 +182,8 @@ function apply(ctx) {
 				return isStillInWindow(messages, it.text);
 			};
 			let injected = 0;
-			if (pending && !inWindow(pending.item)) {
+			// 一次性队列：带 force 标记的（从「发送」进来的）无条件注入，其余沿用窗口判据。
+			if (pending && (pending.item.force === true || !inWindow(pending.item))) {
 				messages.push(makeUserMessage(pending.item.text));
 				injected += 1;
 			}
@@ -423,7 +424,7 @@ function apply(ctx) {
 		});
 		safeRegister({
 			kind: "exact",
-			path: `${PLUGIN_BASE}/quick-inject`,
+			path: `${PLUGIN_BASE}/send`,
 			handler: async (req, res) => {
 				if (req.method !== "POST") {
 					res.writeHead(405);
@@ -442,16 +443,14 @@ function apply(ctx) {
 						sendJson(res, 400, { ok: false, error: "text 不能为空" });
 						return;
 					}
-					// 第一步：与 POST /prompts 完全一致 —— 落盘成一条新提示词。
-					const items = loadPrompts();
+					// 「发送」= 一次性无条件注入：只进内存队列，不写 prompts.json（词条不会留在列表里）。
+					// force 标记让 pre-step 跳过窗口判据，无论该文本是否已在模型窗口内都注入一次。
 					const item = {
-						id: newId(),
+						id: `send_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
 						text,
-						updatedAt: (new Date()).toISOString()
+						updatedAt: (new Date()).toISOString(),
+						force: true
 					};
-					items.push(item);
-					savePrompts(items);
-					// 第二步：与 POST /inject 完全一致 —— 立即排队到该会话下一次模型调用注入。
 					const existing = pendingInjections.get(sessionId);
 					if (existing) clearTimeout(existing.timer);
 					pendingInjections.set(sessionId, {
@@ -462,9 +461,9 @@ function apply(ctx) {
 						}, INJECT_TTL_MS)
 					});
 					try {
-						ctx.logger?.info?.(`[dsh-prompt-inject] 已保存并排队 ${sessionId} -> "${item.text}"`);
+						ctx.logger?.info?.(`[dsh-prompt-inject] 已排队无条件注入 ${sessionId} -> "${item.text}"`);
 					} catch {}
-					sendJson(res, 200, { ok: true, item, queued: true, sessionId });
+					sendJson(res, 200, { ok: true, queued: true, force: true, sessionId });
 				} catch (err) {
 					sendJson(res, 500, { ok: false, error: String(err?.message || err) });
 				}
