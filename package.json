@@ -3,11 +3,14 @@
   "displayName": "DSH 提示词注入",
   "description": "DSH（DeepSeek Harness）提示词注入插件：会话头部入口 + 可拖动的管理浮层，支持一次性注入、发送即无条件注入（不落盘）、以及按条件（轮次开始 / 思考之后 / 指定工具调用后）逐步注入，全程不改 system prompt。",
   "version": "0.3.0",
-  "author": "jojoman2024",
+  "author": "TNTChinaAAA",
+  "contributors": [
+    "jojoman2024 (upstream author)"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OWNER/dsh-prompt-inject.git"
+    "url": "git+https://github.com/TNTChinaAAA/dsh-prompt-inject.git"
   },
   "keywords": [
     "dsh-plugin",

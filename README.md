@@ -3,9 +3,21 @@
 **DSH（DeepSeek Harness）提示词注入插件** —— 在轮次中间按需注入用户设定的提示词，全程不改 system prompt。
 独立浮层集中管理，提示词落盘可复用；既能手动一次性注入，也能按条件（轮次开始 / 思考之后 / 指定工具调用后）逐步自动注入。
 
-> 本仓库是 [`@jojoman2024/dsh-prompt-inject`](https://www.npmjs.com/package/@jojoman2024/dsh-prompt-inject) 的本地维护分支，
-> 在其基础上补齐了源码工程，并加入了「发送 = 一次性无条件注入」的按钮、可拖动的管理浮层、更高的输入框。
-> 想发布成自己的包，把 `package.json` 里的 `name` / `repository` 换成你的 scope 即可。
+> ## 🍴 这是一个 Fork
+>
+> - **上游**：[`jojoman2024/dsh-prompt-inject`](https://github.com/jojoman2024/dsh-prompt-inject) · npm [`@jojoman2024/dsh-prompt-inject`](https://www.npmjs.com/package/@jojoman2024/dsh-prompt-inject)
+> - **本仓库维护者**：**TNTChinaAAA** · https://github.com/TNTChinaAAA/dsh-prompt-inject
+>
+> 在上游基础上做了这些改动：
+>
+> | 改动 | 说明 |
+> | --- | --- |
+> | 发送按钮 | 「发送」= **一次性无条件注入**（`force: true`，跳过窗口判据）**且不落盘**，列表里不留条目 |
+> | 可拖动浮层 | 标题栏拖动，打开默认居中，双击标题栏复位；拖动时自动禁用 iframe 指针事件 |
+> | 布局 | 输入框加高（96px 起，可拖拽到 320px），右侧「发送 / 保存」双按钮竖排 |
+> | 工程化 | 补齐 `src/` 源码、esbuild 构建脚本、双 tsconfig typecheck，产物可复现 |
+>
+> 上游的版权与 MIT 许可证照旧保留，见 [LICENSE](./LICENSE)。
 
 ## ✨ 功能
 
