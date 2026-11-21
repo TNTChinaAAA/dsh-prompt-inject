@@ -1,4 +1,4 @@
-# Host + client 双端插件。
+# Host + client 双端插件。要求 DSH（DeepSeek Harness）>= 0.2.2-rc.1（0.22-rc1 及以后）。
 #  - host 端（src/host/）提供提示词管理 HTTP API、注入路由，并在目标会话下一次模型 step 前
 #    追加一条插件 user 消息（绝不改 system prompt，避免破坏缓存）。
 #  - client 端（src/client/）在会话头部操作区（conversation.session.header.actions）渲染

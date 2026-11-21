@@ -19,6 +19,13 @@
 >
 > 上游的版权与 MIT 许可证照旧保留，见 [LICENSE](./LICENSE)。
 
+## 📌 版本要求
+
+> **本插件只支持 DSH（DeepSeek Harness）`≥ 0.2.2-rc.1`（即 0.22-rc1 及以后）。**
+>
+> 低于该版本的 DSH 请勿安装 —— 插件依赖的 client slot 契约、`webServer` 路由注册与
+> `agent/pre-step` 注入点位在该版本之后才稳定，旧版本上没有兼容保证。
+
 ## ✨ 功能
 
 - **绝不改 system prompt**：注入走 `agent/pre-step` 追加插件 user 消息，对会话日志零侵入、可审计，不破坏 prompt 缓存。
@@ -177,6 +184,7 @@ scripts/
 
 ## 🧩 兼容性
 
+- **DSH 版本：`≥ 0.2.2-rc.1`**（0.22-rc1 起）。更低版本不作兼容与验证。
 - DSH web / desktop profile 插件（host + client 双端）。
 - peer 依赖 `@deepseek-ai/*` `^0.1.0-rc.6 || ^0.1.1-rc.2 || ^0.1.2-alpha.x`；React 18。
 - Node `^22.19.0 || >=24.0.0`。
